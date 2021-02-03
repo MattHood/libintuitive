@@ -1,6 +1,17 @@
 import * as Tone from 'tone'
+import _ from 'lodash'
 import "@webcomponents/webcomponentsjs/webcomponents-loader"
 import "@webcomponents/custom-elements/src/native-shim"
+
+type Maybe<T> = T | null;
+type Optional<T> = T | undefined;
+type ArrayOf<T> = T[];
+
+interface RawNote {
+  pitchClass: string,
+  octave: Optional<string>,
+  duration: Optional<string>
+}
 
 interface Note {
   pitchClass: string;
@@ -8,159 +19,108 @@ interface Note {
   duration: string;
 }
 
-interface ToneEvent {
-  duration: Tone.TimeClass,
-  note: Tone.FrequencyClass,
-  time: number
+export interface MusicEvent {
+  time: number,
+  note: string,
+  duration: string
 }
 
-type ToneNote = Pick<ToneEvent, "duration" | "note">
+export type Music = ArrayOf<MusicEvent>;
 
-type Maybe<T> = T | null;
-type Optional<T> = T | undefined;
-
-function emptyStringIsUndefined(str: string): string | undefined {
-  return str == "" ? undefined : str;
-}
 
 function resolveOptional<T>(input: Optional<T>, sub: T): T {
   return input === undefined ? sub : input as T;
 }
 
-function containsNull<T>(input: Maybe<T[]>): boolean {
-  return input.some( (t) => { t === null });
+function tokenize(input: string): string[] {
+  let clean: string = input.trim();
+  clean = clean.replace(/[^a-gA-G0-9+\-\.mnt]/gm, ""); // Replace illegal characters with empty string
+  let tokens: string[] = clean.split(" ");
+  tokens = tokens.filter( t => t == " " || t == "" );
+  return tokens;
 }
 
-function stringToDuration(token: string): Optional<string> {
-  if(/,/.test(token)) {
-    return token.split(",")[1];
-  }
+function regexParse(token: string): Maybe<RawNote> {
+  // Regex decomposed:
+  //
+  //  /^    Start of token
+  //  (.    First capture group, for pitch class
+  //    [a-gA-G]     Mandatory prefix, musical alphabet
+  //    (?:bb|b|#|x)? Optional accidental
+  //  )    
+  //  (     Second capture group, for octave. Range from -4 to 11
+  //    -[1-4]
+  //    |[0-9]
+  //    |10|11
+  //  )?   Octave is optional
+  //  ,?   Optional comma, to separate pitch and duration. TODO: Make it so that the comma is mandatory if the duration is present?
+  //  (    Third capture group, for duration
+  //    0|1m|1n|1n\.    Special durations are handled manually. 0 is on its own, 1 has 'm' for measure and no triplet option
+  //    |(?:2|4|8|16|32|64|128) Other regular subdivisions
+  //     (?:n|n\.|t)  And the available suffixes
+  //  )?   Duration is optional
+  //  $    Token should end here
+  // /gm   Multiple matches, multi-line? shouldn't be necessary
+  //
+  let reg: RegExp = /^([a-gA-G](?:bb|b|#|x)?)(-[1-4]|[0-9]|10|11)?,?(0|1m|1n|1n\.|(?:2|4|8|16|32|64|128)(?:n|n\.|t))?$/gm;
+  let result = reg.exec(token);
+  if(result)
+    return {pitchClass: result[1],
+	    octave: result[2],
+	    duration: result[3]};
   else {
-    return undefined;
-  }
-}
-
-function stringToPitch(token: string): Maybe<{pitchClass: string, octave?: string}> {
-  let pitch: string;
-  let pitchClass: string;
-  let octave: string;
-
-  if(/,/.test(token)) {
-    pitch = token.split(",")[0];
-  }
-  else {
-    pitch = token;
-  }
-
-  let octaveSpec: RegExp = /([0-9\-+])/;
-  let classSpec: RegExp = /([a-z])/i;
-  if(classSpec.exec(pitch) == null) {
     return null;
   }
-  else {
-    let octaveTest = octaveSpec.exec(pitch);
-    if(octaveTest) {
-      pitchClass = pitch.substring(0, octaveTest.index);
-      octave = pitch.substring(octaveTest.index, pitch.length);
-    }
-    else {
-      pitchClass = pitch;
-      octave = undefined;
-    }
-    return {pitchClass: pitchClass, octave: octave};
+}
+
+function missingFiller(): (incomplete: RawNote) => Note {
+  let previousOctave: string = "3";
+  let previousDuration: string = "4n";
+
+  return (incomplete: RawNote): Note => {
+    let full: Note = { pitchClass: incomplete.pitchClass,
+		       octave: resolveOptional(incomplete.octave, previousOctave),
+		       duration: resolveOptional(incomplete.duration, previousDuration) };
+    previousOctave = full.octave;
+    previousDuration = full.duration;
+    return full;
   }
 }
 
-interface PhraseState {
-  previousOctave: string,
-  previousDuration: string;
+function noteToMusicEvent(n: Note, t: number): MusicEvent {
+  return {note: n.pitchClass + n.octave, duration: n.duration, time: t};
 }
-
-function tokenToNote(input: string, state: PhraseState): Maybe<Note> {
-  let duration: Optional<string> = stringToDuration(input);
-  let pitch:  Maybe<{pitchClass: string, octave?: string}> = stringToPitch(input);
-
-  if(pitch == null) {
-    return null;
-  }
-  else {
-    return {pitchClass: pitch.pitchClass,
-	    duration: resolveOptional(emptyStringIsUndefined(duration), state.previousDuration),
-	    octave: resolveOptional(emptyStringIsUndefined(pitch.octave), state.previousOctave)
-	   };
-  }
-}
-
-
-
-function phraseToNotes(input: string): Maybe<Note[]> {
-  let tokens: string[] = input.split(" ");
-  let state: PhraseState = {previousOctave: "4", previousDuration: "4n"};
-  let notes: Maybe<Note>[] = tokens.map((token) => {
-    let out: Maybe<Note> = tokenToNote(token, state);
-    if(out !== null) {
-      state.previousDuration = out.duration;
-      state.previousOctave = out.octave;
-    }
-    return out;
-  });
-
-  if(containsNull(notes)) {
-    return null;
-  }
-  else {
-    return notes;
-  }
-}
-
-function notesToToneNotes(notes: Note[]): Maybe<ToneNote[]> {
-  function castToTone(n: Note): Maybe<ToneNote> {
-    let pitch: string = n.pitchClass + n.octave;
-    if(pitch in Tone.FrequencyClass && n.duration in Tone.TimeClass) {
-      return {note: Tone.Frequency(pitch), duration: Tone.Time(n.duration)};
-    }
-    else {
-      return null;
-    }
-  };
-
-  let toneNotes: Maybe<ToneNote>[] = notes.map(castToTone);
-  if(containsNull(toneNotes)) {
-    return null;
-  }
-  else {
-    return toneNotes;
-  }
-}
-
-export type Music = { time: number; note: string; duration: string; }[];
-    
 
 function accumulateTimecodes(notes: Note[]): Music {
   let lastTime = 0;
   let events: Music = [];
 
   notes.forEach((n) => {
-    events.push({note: n.pitchClass + n.octave, duration: n.duration, time: lastTime});
+    events.push(noteToMusicEvent(n, lastTime));
     lastTime += Tone.Time(n.duration).toSeconds();
   });
   return events;		 
 }
   
+  
 
 export function shorthandPart(note_string: string): Music {
-  let phrase: Maybe<Note[]> = phraseToNotes(note_string);
-  if(phrase === null) {
-    throw new SyntaxError("Token was not recognised as a valid note");
+  let tokens: string[] = tokenize(note_string);
+  let parsed: Maybe<RawNote[]> = tokens.map(regexParse);
+  
+  let failed: string[] = _.zip(tokens, parsed).map( (t): string | null => {
+    return t[1] == null ? t[0] : null;
+  }).filter(_.isNull);
+  if(!_.isEmpty(failed)) {
+    console.warn("Shorthand Note Parser || The following tokens were rejected: ");
+    failed.forEach( (f) => { console.warn(f + ", ") } );
   }
 
-  //let toneNotes: Maybe<ToneNote[]> = notesToToneNotes(phrase);
-  //if(phrase === null) {
- //   throw new TypeError("Note is not representable by Tone.js");
-  //}
-
-  return accumulateTimecodes(phrase);
-
+  let succeeded: RawNote[] = parsed.filter(_.isNull);
+  let filler: (incomplete: RawNote) => Note = missingFiller();
+  let complete: Note[] = succeeded.map(filler);
+  let withTime: Music = accumulateTimecodes(complete);
+  return withTime;
 }
 
 export function playMusic(music: Music, synth: Tone.PolySynth) {
@@ -173,6 +133,11 @@ export function playMusic(music: Music, synth: Tone.PolySynth) {
 export class TunePlayer extends HTMLElement {
   music: Music;
   synth: Tone.PolySynth;
+
+  static register(): void {
+    window.customElements.define('intuitive-tune-player', TunePlayer);
+  }
+  
   constructor() {
     super();
 
@@ -190,5 +155,4 @@ export class TunePlayer extends HTMLElement {
   }
 }
 
-// Check below if error, button
 //customElements.define('intuitive-tune-player', TunePlayer);
