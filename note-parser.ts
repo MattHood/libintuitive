@@ -110,13 +110,13 @@ export function shorthandPart(note_string: string): Music {
   
   let failed: string[] = _.zip(tokens, parsed).map( (t): string | null => {
     return t[1] == null ? t[0] : null;
-  }).filter(_.isNull);
+  }).filter(_.negate(_.isNull));
   if(!_.isEmpty(failed)) {
     console.warn("Shorthand Note Parser || The following tokens were rejected: ");
     failed.forEach( (f) => { console.warn(f + ", ") } );
   }
 
-  let succeeded: RawNote[] = parsed.filter(_.isNull);
+  let succeeded: RawNote[] = parsed.filter(_.negate(_.isNull));
   let filler: (incomplete: RawNote) => Note = missingFiller();
   let complete: Note[] = succeeded.map(filler);
   let withTime: Music = accumulateTimecodes(complete);
