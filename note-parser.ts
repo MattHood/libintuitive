@@ -34,7 +34,7 @@ function resolveOptional<T>(input: Optional<T>, sub: T): T {
 
 function tokenize(input: string): string[] {
   let clean: string = input.trim();
-  clean = clean.replace(/[^a-gA-G0-9+\-\.mnt\s]/gm, ""); // Replace illegal characters with empty string
+  clean = clean.replace(/[^a-gA-G0-9+\-\.mnt\s,]/gm, ""); // Replace illegal characters with empty string
   let tokens: string[] = clean.split(" ");
   tokens = tokens.filter( t => t == " " || t == "" );
   return tokens;
