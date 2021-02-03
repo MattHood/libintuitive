@@ -1,0 +1,90 @@
+#+TITLE: Music Theory Course for RMA
+#+AUTHOR: Matt Hood
+
+
+
+* DONE Note picker that is able to illustrate the process of moving from continuous frequency space to discrete notes that work well together
+**Why?** Sound is a wilderness of discordance and dissonance. The machinery of tuning, scales, chords is all about finding the 'good notes', the subset of dissonance that is consonance. This exercise gives the student an appreciation of the value of elementary music theory, by experiencing how bad things are without it. This will then be a source of motivation to continue learning.
+
+** The 'inline-js' blocks :noexport:
+Support for 'inline-js' may be added via evaluation of the following elisp:
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'org-src-lang-modes '("inline-js" . javascript))
+(defvar org-babel-default-header-args:inline-js
+  '((:results . "html")
+    (:exports . "results")))
+(defun org-babel-execute:inline-js (body _params)
+  (format "<script type=\"text/javascript\">\n%s\n</script>" body))
+#+END_SRC
+
+#+RESULTS:
+: org-babel-execute:inline-js
+
+Source: https://www.reddit.com/r/orgmode/comments/5bi6ku/tip_for_exporting_javascript_source_block_to/
+
+** Implementation
+
+#+begin_export html
+<script src="https://unpkg.com/tone@13.8.25/build/Tone.js"></script>
+
+<script src="frequency-resolution-applet.js"></script>
+
+<div id="applet">Test</div>
+#+end_export
+
+#+begin_src inline-js :exports both
+  let parent = document.getElementById("applet");
+  let fra = new FrequencyResolutionApplet(parent, 700, 500, "major scale");
+  console.log("1");
+#+end_src
+
+*** To-dos
+**** DONE Use a polyphonic synth to address bugs in adjacent notes
+**** DONE Refactor into a single component
+**** DONE Adjust saturation brightness per mode.
+**** TODO Store tone.js locally
+**** DONE Snap rhythms to grid
+**** TODO Better looking notehead
+**** DONE Play notes in spatial order
+
+*** Open questions
+**** Should visual quantization occur on the time axis? Maybe not in the continuous mode? It's a bit jarring when the note doesn't go where you expect without a visual cue that placement is discrete
+
+
+* Song player
+** DONE Accept a shorthand notation
+** TODO Tempo, other possible inputs
+** TODO Ties, rests
+** TODO Notation in presentation, via a div or span
+** TODO Use abc.js for note input?
+** Easy transposing
+** Graphics, title, indicator of playback
+
+* Intervals: Assign an emotional adjective to each interval (or any aural object really) and use the rest of the presentation
+
+Aural Interval objects could be placed inline with text, featuring
+- Official term as text
+- Student-prescribed adjective
+- Student-prescribed colour
+- Plays the sound, with a random root note for relative objects
+
+
+* Guitar-hero style tapping game to learm rhythms. Allow building of custom levels. Score based on accuracy.
+
+
+* Word definitions: terms that are defined in the course can be clicked to expand a definition (floating? inline?). This should work recursively.
+
+
+* Technical notes
+** TODO Implement responsive design
+** TODO Use custom components for all of these things
+** DONE Filter illegal characters in note-parser using regex
+** DONE Spinoff into libintuitive
+** TODO Separate notes.org for libintuitive
+** TODO Documentation.org for libintuitive
+** TODO Readme.org for libintuitive
+** TODO Copy over demo slideshow
+** TODO note-parser.ts tweaks:
+*** TODO Warning type for ignored notes
+*** TODO Map/reduce for gathering them
+
