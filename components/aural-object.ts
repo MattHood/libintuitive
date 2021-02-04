@@ -147,5 +147,39 @@ function fillSpans(): void {
   
 }
 
+export class Aural extends HTMLElement {
+  shadow: ShadowRoot;
+  constructor() {
+    super();
+
+    //this.shadow = this.attachShadow({mode: 'open'});
+    
+   
+    let verb = new Tone.Reverb({wet: 0.6}).toDestination();
+    let synth = new Tone.PolySynth().connect(verb);
+
+    let a: HTMLAnchorElement = document.createElement('a');
+    let text = this.innerHTML;
+    this.innerHTML = "";
+    
+    a.href = "javascript:void(0)";
+    a.innerHTML = text;
+
+    
+
+    let AO = toAuralObject(this.getAttribute('type'));
+    
+    a.onclick = (event) => {
+      play(AO, synth);
+    };
+
+    this.appendChild(a);
+   
+    
+  }
+}
+
+customElements.define('intuitive-aural', Aural);
+
 
 export {AuralObject, majorTriad, minorTriad, major3rd, play, toAuralObject, fillSpans};
