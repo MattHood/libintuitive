@@ -5,7 +5,7 @@ import "@webcomponents/webcomponentsjs/webcomponents-loader"
 import "@webcomponents/custom-elements/src/native-shim"
 import * as Tone from 'tone'
 
-import { FrequencyResolutionApplet } from '../components/frequency-resolution-applet'
+import { FrequencyResolutionApplet, FRComponent } from '../components/frequency-resolution-applet'
 import * as Aural from '../components/aural-object';
 import * as NP from '../components/note-parser'
 
@@ -44,4 +44,5 @@ play.onclick = (e) => {
 
 // Slide 5
 customElements.define('intuitive-tune-player', NP.TunePlayer);
+customElements.define('intuitive-fra', FRComponent);
 

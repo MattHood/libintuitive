@@ -240,9 +240,8 @@ class FrequencyResolutionApplet {
   chromaticButton: Button;
   scaleButton: Button;
   chordButton: Button;
-  break1: HTMLBreakElement;
-  break2: HTMLBreakElement;
-
+  break1: HTMLBRElement;
+  break2: HTMLBRElement;
   height: number;
   sound: Sound;
   graphics: Graphics;
@@ -257,7 +256,7 @@ class FrequencyResolutionApplet {
       return t;
     }
 
-    function appendTo(parent: HTMLElement, children: HTMLElement): void {
+    function appendTo(parent: HTMLElement, children: HTMLElement[]): void {
       children.forEach( (el) => parent.appendChild(el) );
     }
 	
@@ -352,6 +351,135 @@ class FrequencyResolutionApplet {
 	this.clearCanvas();
 	this.connectEvents();
     }
+}
+
+export class FRComponent extends HTMLElement {
+  container: Div;
+  canvas: HTMLCanvasElement;
+  upperContainer: Div;
+  playButton: Button;
+  clearButton: Button;
+  lowerContainer: Div;
+  continuousButton: Button;
+  chromaticButton: Button;
+  scaleButton: Button;
+  chordButton: Button;
+  break1: HTMLBRElement;
+  break2: HTMLBRElement;
+  height: number;
+  sound: Sound;
+  graphics: Graphics;
+  mapper: Mapper;
+  
+  
+  
+  buildUI(width: number, height: number): void {
+    function button(text: string): Button {
+      let t = document.createElement("button");
+      t.innerHTML = text;
+      return t;
+    }
+
+    function appendTo(parent: HTMLElement, children: HTMLElement[]): void {
+      children.forEach( (el) => parent.appendChild(el) );
+    }
+	
+	this.container = document.createElement("div");
+
+	this.canvas = document.createElement("canvas");
+	this.canvas.width = width;
+	this.canvas.height = height;
+
+	this.upperContainer = document.createElement("div");
+	this.playButton = button("Play");
+	this.clearButton = button("Clear");
+	appendTo(this.upperContainer, [this.playButton,
+				       this.clearButton]);
+
+	this.lowerContainer = document.createElement("div");
+	this.continuousButton = button("Continuous");
+	this.chromaticButton = button("Chromatic");
+	this.scaleButton = button("Scale");
+	this.chordButton = button("Chord");
+	appendTo(this.lowerContainer, [this.continuousButton,
+				       this.chromaticButton,
+				       this.scaleButton,
+				       this.chordButton]);
+
+	this.break1 = document.createElement("br");
+	this.break2 = document.createElement("br");
+
+	appendTo(this.container, [this.upperContainer,
+				  this.break1,
+				  this.canvas,
+				  this.break2,
+				  this.lowerContainer]);
+
+    this.appendChild(this.container);
+  }
+
+    clearCanvas() {
+	this.sound.clearNotes();
+	this.graphics.drawBackground(this.mapper);
+    }
+
+    connectEvents() {
+	// TODO Fix scope issues that require bind()
+	this.playButton.onclick = (function() {
+	    this.sound.play();
+	}).bind(this);
+	this.clearButton.onclick = (function() {
+	    this.sound.clearNotes();
+	    this.graphics.drawBackground(this.mapper);
+	}).bind(this);
+
+	function resolutionChanger(tuning, caller) {
+	    return function() {
+		caller.mapper = new Mapper(caller.height, tuning);
+		caller.clearCanvas();
+		
+	    };
+	}
+	
+	this.continuousButton.onclick = resolutionChanger("continuous", this);
+	this.chromaticButton.onclick = resolutionChanger("chromatic", this);
+	this.scaleButton.onclick = resolutionChanger("major scale", this);
+	this.chordButton.onclick = resolutionChanger("major chord", this);
+
+	let handleClick = (function(event) {
+	    let rect = this.canvas.getBoundingClientRect();
+            let x = event.clientX - rect.left;
+            let y = event.clientY - rect.top;
+
+	    
+
+	    let freq = this.mapper.pixelToFrequency(y);
+            let time = x;
+            let drawY = this.mapper.snapPixelHeight(y);
+            let drawX = this.sound.quantizeTime(x); // TODO: Move quantize function to better location
+
+            this.sound.addNote(freq, time);
+            this.graphics.drawNotehead(drawX, drawY);
+	}).bind(this);
+	this.canvas.addEventListener("mousedown", handleClick);
+  }
+  
+  constructor() {
+    super();
+
+    let width: number = parseInt(this.getAttribute("width"));
+    let height: number  = parseInt(this.getAttribute("height"));
+    let initialTuning = this.getAttribute("initial-tuning");
+
+    this.buildUI(width, height);
+    this.height = height;
+    this.sound = new Sound(width);
+    this.graphics = new Graphics(this.canvas);
+    this.mapper = new Mapper(height, initialTuning);
+    this.clearCanvas();
+    this.connectEvents();
+    
+  }
 }
 
 export { FrequencyResolutionApplet };

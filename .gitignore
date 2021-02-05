@@ -1,0 +1,8 @@
+/.DS_Store
+/.cache/
+/.log/
+/demo/.DS_Store
+/notes.org~
+/node_modules/
+/dist/
+/demo/index.ts~

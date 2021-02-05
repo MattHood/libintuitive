@@ -6,6 +6,7 @@ import "@webcomponents/custom-elements/src/native-shim"
 type Maybe<T> = T | null;
 type Optional<T> = T | undefined;
 type ArrayOf<T> = T[];
+type Warning<T> = { data: T; warning: Optional<string> };
 
 interface RawNote {
   pitchClass: string,
@@ -32,11 +33,20 @@ function resolveOptional<T>(input: Optional<T>, sub: T): T {
   return input === undefined ? sub : input as T;
 }
 
+function resolveWarning<T>(w: Warning<T>, header?: string): T {
+  if(w.warning) {
+    let msg: string = header ? header + ": " + w.warning : w.warning;
+    console.warn(msg)
+  }
+
+  return w.data;
+}
+
 function tokenize(input: string): string[] {
   let clean: string = input.trim();
   clean = clean.replace(/[^a-gA-G0-9+\-\#bx\.mnt, ]/gm, ""); // Replace illegal characters with empty string
   let tokens: string[] = clean.split(" ");
-  tokens = tokens.filter( t => t =! " " || t != "" );
+  tokens = tokens.filter( t => t.trim() != "" );
   return tokens;
 }
 
@@ -104,23 +114,23 @@ function accumulateTimecodes(notes: Note[]): Music {
   
   
 
-export function shorthandPart(note_string: string): Music {
+export function shorthandPart(note_string: string): Warning<Music> {
   let tokens: string[] = tokenize(note_string);
-  let parsed: Maybe<RawNote[]> = tokens.map(regexParse);
-  
-  let failed: string[] = _.zip(tokens, parsed).map( (t): string | null => {
-    return t[1] == null ? t[0] : null;
-  }).filter(_.negate(_.isNull));
-  if(!_.isEmpty(failed)) {
-    console.warn("Shorthand Note Parser || The following tokens were rejected: ");
-    failed.forEach( (f) => { console.warn(f + ", ") } );
-  }
+  let parsed: Maybe<RawNote>[] = tokens.map(regexParse);
 
+  let failed: string[] =
+    _.zip(tokens, parsed)
+      .filter(([ , parse]): boolean => _.isNull(parse))
+      .map( ([token, ]): string => token.trim())
+      .filter(_.negate(_.isEmpty));
+  let warning: string | undefined = _.isEmpty(failed) ? undefined : failed.join(", ");
+ 
   let succeeded: RawNote[] = parsed.filter(_.negate(_.isNull));
   let filler: (incomplete: RawNote) => Note = missingFiller();
   let complete: Note[] = succeeded.map(filler);
   let withTime: Music = accumulateTimecodes(complete);
-  return withTime;
+
+  return {data: withTime, warning: warning};
 }
 
 export function playMusic(music: Music, synth: Tone.PolySynth) {
@@ -144,7 +154,8 @@ export class TunePlayer extends HTMLElement {
     let shadow: ShadowRoot = this.attachShadow({mode: 'open'});
     let button: HTMLButtonElement = document.createElement("button");
     this.synth = new Tone.PolySynth().toDestination();
-    this.music = shorthandPart(this.innerHTML); // TODO, use inner text?
+    this.music = resolveWarning(shorthandPart(this.innerHTML),
+				"Failed to parse the tokens"); // TODO, use inner text?
     this.innerHTML = "";
 
     button.innerHTML = this.getAttribute("title");
