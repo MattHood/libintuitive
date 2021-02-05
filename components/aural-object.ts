@@ -1,4 +1,5 @@
 import * as Tone from 'tone'
+import { LitElement, html, customElement, property } from 'lit-element'
 
 interface AuralObject {
  /**
@@ -147,39 +148,38 @@ function fillSpans(): void {
   
 }
 
-export class Aural extends HTMLElement {
-  shadow: ShadowRoot;
+//@customElement('intuitive-aural')
+export default class Aural extends LitElement {
+
+  text: string;
+  AO: AuralObject;
+  synth: Tone.PolySynth;
+
+  @property({type: String})
+  _type: string;
+
+  static register() {
+    customElements.define('intuitive-aural', Aural);
+  }
+  
+  
   constructor() {
     super();
-
-    //this.shadow = this.attachShadow({mode: 'open'});
-    
    
     let verb = new Tone.Reverb({wet: 0.6}).toDestination();
-    let synth = new Tone.PolySynth().connect(verb);
+    this.synth = new Tone.PolySynth().connect(verb);
+    this.AO = toAuralObject(this.getAttribute('type'));    
+  }
 
-    let a: HTMLAnchorElement = document.createElement('a');
-    let text = this.innerHTML;
-    this.innerHTML = "";
-    
-    a.href = "javascript:void(0)";
-    a.innerHTML = text;
+  playAural(): void {
+    play(this.AO, this.synth);
+  }
 
-    
-
-    let AO = toAuralObject(this.getAttribute('type'));
-    
-    a.onclick = (event) => {
-      play(AO, synth);
-    };
-
-    this.appendChild(a);
-   
-    
+  render() {
+    return html`
+<a href="javascript:void(0)" @click=${this.playAural}>
+  <slot></slot>
+</a>
+`;
   }
 }
-
-customElements.define('intuitive-aural', Aural);
-
-
-export {AuralObject, majorTriad, minorTriad, major3rd, play, toAuralObject, fillSpans};

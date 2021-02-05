@@ -482,5 +482,39 @@ export class FRComponent extends HTMLElement {
   }
 }
 
-export { FrequencyResolutionApplet };
+// Allows width and height to be specified in any standard way.
+// An FRA will then be created with the real pixel values.
+export default class ResponsiveFRA extends HTMLElement {
+  static register() {
+    customElements.define('intuitive-internal-fra', FRComponent);
+    customElements.define('intuitive-frequency-resolution-applet', ResponsiveFRA);
+  }
 
+  constructor() {
+    super();
+
+    let width: string = this.getAttribute("width");
+    let height: string  = this.getAttribute("height");
+    let initialTuning = this.getAttribute("initial-tuning");
+
+    let div: HTMLDivElement = document.createElement("div");
+    div.setAttribute("width", width);
+    div.setAttribute("height", height);
+
+    //this.appendChild(div);
+
+    let vp: HTMLElement = document.querySelector(".reveal-viewport");
+
+    let trueWidth: number = vp.getBoundingClientRect().width;
+    let trueHeight: number = vp.getBoundingClientRect().height;
+
+    let canvasHeight: number = trueHeight / 2;
+    let canvasWidth: number = trueWidth < trueHeight ? trueWidth : trueWidth / 2;
+    
+    console.log(trueWidth + ", " + trueHeight);
+
+    this.innerHTML =
+      `<intuitive-internal-fra width="${canvasWidth}" height="${canvasHeight}" initial-tuning="${initialTuning}">
+</intuitive-fra>`;
+  }
+}

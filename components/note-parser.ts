@@ -1,7 +1,8 @@
 import * as Tone from 'tone'
-import _ from 'lodash'
+import * as _ from'lodash'
 import "@webcomponents/webcomponentsjs/webcomponents-loader"
 import "@webcomponents/custom-elements/src/native-shim"
+import { customElement, html, LitElement, property } from 'lit-element';
 
 type Maybe<T> = T | null;
 type Optional<T> = T | undefined;
@@ -33,7 +34,7 @@ function resolveOptional<T>(input: Optional<T>, sub: T): T {
   return input === undefined ? sub : input as T;
 }
 
-function resolveWarning<T>(w: Warning<T>, header?: string): T {
+export function resolveWarning<T>(w: Warning<T>, header?: string): T {
   if(w.warning) {
     let msg: string = header ? header + ": " + w.warning : w.warning;
     console.warn(msg)
@@ -114,7 +115,7 @@ function accumulateTimecodes(notes: Note[]): Music {
   
   
 
-export function shorthandPart(note_string: string): Warning<Music> {
+function shorthandPart(note_string: string): Warning<Music> {
   let tokens: string[] = tokenize(note_string);
   let parsed: Maybe<RawNote>[] = tokens.map(regexParse);
 
@@ -133,37 +134,40 @@ export function shorthandPart(note_string: string): Warning<Music> {
   return {data: withTime, warning: warning};
 }
 
-export function playMusic(music: Music, synth: Tone.PolySynth) {
+function playMusic(music: Music, synth: Tone.PolySynth) {
   music.forEach( (n) => {
     synth.triggerAttackRelease(n.note, n.duration, n.time + Tone.now());
   });
 }
 
 // WebComponent for this thing
-export class TunePlayer extends HTMLElement {
+export default class TunePlayer extends LitElement {
   music: Music;
   synth: Tone.PolySynth;
 
-  static register(): void {
-    window.customElements.define('intuitive-tune-player', TunePlayer);
+  @property({type: String})
+  title: string;
+
+  static register() {
+    customElements.define('intuitive-tune-player', TunePlayer);
   }
   
   constructor() {
     super();
 
-    let shadow: ShadowRoot = this.attachShadow({mode: 'open'});
-    let button: HTMLButtonElement = document.createElement("button");
     this.synth = new Tone.PolySynth().toDestination();
+    console.log(this.innerHTML);
     this.music = resolveWarning(shorthandPart(this.innerHTML),
 				"Failed to parse the tokens"); // TODO, use inner text?
-    this.innerHTML = "";
+  }
 
-    button.innerHTML = this.getAttribute("title");
-    //button.style.width = "300px";
-    //button.style.height = "100px";
-    button.onclick = () => { playMusic(this.music, this.synth) };
-    shadow.appendChild(button);
+  clickHandler() {
+    playMusic(this.music, this.synth)
+  }
+
+  render() {
+    return html`
+<button @click=${this.clickHandler}>${this.title}</button>
+`
   }
 }
-
-//customElements.define('intuitive-tune-player', TunePlayer);

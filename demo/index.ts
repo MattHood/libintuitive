@@ -5,9 +5,10 @@ import "@webcomponents/webcomponentsjs/webcomponents-loader"
 import "@webcomponents/custom-elements/src/native-shim"
 import * as Tone from 'tone'
 
-import { FrequencyResolutionApplet, FRComponent } from '../components/frequency-resolution-applet'
-import * as Aural from '../components/aural-object';
-import * as NP from '../components/note-parser'
+import ResponsiveFRA from '../components/frequency-resolution-applet'
+import Aural from '../components/aural-object';
+import TunePlayer from '../components/note-parser'
+import AllowAudio from '../components/allow-audio'
 
 Reveal.initialize({
 	  width: "100%",
@@ -17,32 +18,14 @@ Reveal.initialize({
 	  maxScale: 1
 });
 
+AllowAudio.register();
+Aural.register();
+ResponsiveFRA.register();
+TunePlayer.register();
+
 // Slide 1
 let startup: HTMLElement = document.getElementById("startup");
 startup.onclick = () => {
   Tone.start();
   startup.remove();
 }
-
-
-// Slide 2
-let parent = document.getElementById("applet");
-let FRA = new FrequencyResolutionApplet(700, 500, "major scale");
-parent.appendChild(FRA.getApplet());
-
-// Slide 3
-Aural.fillSpans();
-
-// Slide 4
-let play = document.getElementById("aha");
-let synth = new Tone.PolySynth().toDestination();
-let tune: NP.Music = NP.shorthandPart("e4,16n e c a3,8n a d4 d d,16n f# f# g a g g g d,8n c e4 e e,16n d d e d");
-
-play.onclick = (e) => {
-  NP.playMusic(tune, synth);
-}
-
-// Slide 5
-customElements.define('intuitive-tune-player', NP.TunePlayer);
-customElements.define('intuitive-fra', FRComponent);
-
