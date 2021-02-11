@@ -134,10 +134,19 @@ function shorthandPart(note_string: string): Warning<Music> {
   return {data: withTime, warning: warning};
 }
 
-function playMusic(music: Music, synth: Tone.PolySynth) {
-  music.forEach( (n) => {
+export function playMusic(music: Music, synth: Tone.PolySynth, tempo: number = 120) {
+  let transformed: Music = music.map( (mu) => {
+    mu.time *= 120 / tempo;
+    return mu; } );
+
+  transformed.forEach( (n) => {
     synth.triggerAttackRelease(n.note, n.duration, n.time + Tone.now());
   });
+}
+
+export function stringToMusic(input: string): Music {
+  return resolveWarning(shorthandPart(input),
+			"Failed to parse the tokens"); // TODO, use inner text?
 }
 
 // WebComponent for this thing
@@ -157,8 +166,7 @@ export default class TunePlayer extends LitElement {
 
     this.synth = new Tone.PolySynth().toDestination();
     console.log(this.innerHTML);
-    this.music = resolveWarning(shorthandPart(this.innerHTML),
-				"Failed to parse the tokens"); // TODO, use inner text?
+    this.music = stringToMusic(this.innerHTML);
   }
 
   clickHandler() {

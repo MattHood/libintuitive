@@ -67,6 +67,8 @@ Aural Interval objects could be placed inline with text, featuring
 - Student-prescribed adjective
 - Student-prescribed colour
 - Plays the sound, with a random root note for relative objects
+- Real instrument sounds with choice
+
 
 
 * Guitar-hero style tapping game to learm rhythms. Allow building of custom levels. Score based on accuracy.
