@@ -92,4 +92,6 @@ Aural Interval objects could be placed inline with text, featuring
 *** DONE Warning type for ignored notes
 *** DONE Map/reduce for gathering them
 ** TODO allow-audio: fix remove() causing null issues on render
+** TODO intuitive-tune-player: accept tempo and transpose arguments
+** TODO intuitive-keyboard-graphic: more permissive input to 'select' attribute
 
