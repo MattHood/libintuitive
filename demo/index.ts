@@ -10,6 +10,7 @@ import Aural from '../components/aural-object';
 import TunePlayer from '../components/note-parser'
 import AllowAudio from '../components/allow-audio'
 import KeyboardGraphic from '../components/keyboard-graphic'
+import BasicFretboardGraphic from '../components/fretboard-graphic'
 
 Reveal.initialize({
 	  width: "100%",
@@ -24,6 +25,7 @@ Aural.register();
 ResponsiveFRA.register();
 TunePlayer.register();
 KeyboardGraphic.register();
+BasicFretboardGraphic.register();
 
 // Slide 1
 let startup: HTMLElement = document.getElementById("startup");
