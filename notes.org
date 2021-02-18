@@ -38,15 +38,6 @@ Source: https://www.reddit.com/r/orgmode/comments/5bi6ku/tip_for_exporting_javas
   console.log("1");
 #+end_src
 
-*** To-dos
-**** DONE Use a polyphonic synth to address bugs in adjacent notes
-**** DONE Refactor into a single component
-**** DONE Adjust saturation brightness per mode.
-**** TODO Store tone.js locally
-**** DONE Snap rhythms to grid
-**** TODO Better looking notehead
-**** DONE Play notes in spatial order
-
 *** Open questions
 **** Should visual quantization occur on the time axis? Maybe not in the continuous mode? It's a bit jarring when the note doesn't go where you expect without a visual cue that placement is discrete
 
@@ -78,20 +69,14 @@ Aural Interval objects could be placed inline with text, featuring
 
 
 * Technical notes
-** TODO Implement responsive design
+** TODO Implement responsive design (via bulma?)
 *** TODO Find out how to do it in a predictable way. Viewport feels hacky
 *** TODO Handle orientation changes
-** DONE Use custom components for all of these things
-** DONE Filter illegal characters in note-parser using regex
-** DONE Spinoff into libintuitive
-** DONE Separate notes.org for libintuitive
 ** TODO Documentation.org for libintuitive
 ** TODO Readme.org for libintuitive
-** DONE  Copy over demo slideshow
-** DONE note-parser.ts tweaks:
-*** DONE Warning type for ignored notes
-*** DONE Map/reduce for gathering them
 ** TODO allow-audio: fix remove() causing null issues on render
 ** TODO intuitive-tune-player: accept tempo and transpose arguments
 ** TODO intuitive-keyboard-graphic: more permissive input to 'select' attribute
+** TODO intuitive-aural: better styling for link
+** TODO intuitive-aural: slower tempo for less notes
 

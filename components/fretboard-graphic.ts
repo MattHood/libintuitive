@@ -43,14 +43,14 @@ export default class BasicFretboardGraphic extends LitElement {
         <rect x="${sideMargin}" y="${topMargin}" 
             rx="15" ry="5"
             width="${fretboardWidth}" height="${fretboardHeight}"
-            stroke="black" stroke-width="${fretwireWidth}"
-            fill="white">
+            stroke="SaddleBrown" stroke-width="${fretwireWidth}"
+            fill="GoldenRod">
         `
 
         function fretwire(x: number) {
             return svg`
                 <rect x="${x + sideMargin}" y="${topMargin}" width="${fretwireWidth}" height="${fretboardHeight}"
-                    stroke="black" fill="black">
+                    stroke="SaddleBrown" fill="SaddleBrown">
             `
         }
 
