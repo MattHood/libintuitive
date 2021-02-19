@@ -75,8 +75,14 @@ Aural Interval objects could be placed inline with text, featuring
 ** TODO Documentation.org for libintuitive
 ** TODO Readme.org for libintuitive
 ** TODO allow-audio: fix remove() causing null issues on render
-** TODO intuitive-tune-player: accept tempo and transpose arguments
+** DONE intuitive-tune-player: replace newline with space
+** DONE intuitive-tune-player: accept tempo and transpose arguments
+** TODO intuitive-tune-player: accept slot children, like intuitive-aural
 ** TODO intuitive-keyboard-graphic: more permissive input to 'select' attribute
-** TODO intuitive-aural: better styling for link
-** TODO intuitive-aural: slower tempo for less notes
+** DONE intuitive-aural: allow anything inside the tag
+** DONE add intuitive-aural changes to presentation
+** DONE intuitive-aural: slower tempo for less notes
+** DONE frequency-resolution-applet: remove extra buttons
+** TODO frequency-resolution-applet: rewrite with svg? Highlight noteheads during playback?
+** TODO Create generic play/pause button with optional text
 

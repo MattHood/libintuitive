@@ -45,6 +45,7 @@ export function resolveWarning<T>(w: Warning<T>, header?: string): T {
 
 function tokenize(input: string): string[] {
   let clean: string = input.trim();
+  clean = clean.replace(/[\n\r]+/gm, " ");
   clean = clean.replace(/[^a-gA-G0-9+\-\#bx\.mnt, ]/gm, ""); // Replace illegal characters with empty string
   let tokens: string[] = clean.split(" ");
   tokens = tokens.filter( t => t.trim() != "" );
@@ -144,6 +145,14 @@ export function playMusic(music: Music, synth: Tone.PolySynth, tempo: number = 1
   });
 }
 
+export function transpose(input: Music, semitones: number): Music {
+  return input.map( 
+    (n: MusicEvent): MusicEvent => {
+      let newNote = Tone.Frequency(n.note).transpose(semitones).toNote();
+      return {...n, note: newNote}
+    });
+}
+
 export function stringToMusic(input: string): Music {
   return resolveWarning(shorthandPart(input),
 			"Failed to parse the tokens"); // TODO, use inner text?
@@ -157,20 +166,38 @@ export default class TunePlayer extends LitElement {
   @property({type: String})
   title: string;
 
+  @property({type: Boolean})
+  randomroot: boolean;
+
+  @property({type: Number})
+  transpose: number;
+
+  @property({type: Number})
+  tempo: number = 120;
+
   static register() {
     customElements.define('intuitive-tune-player', TunePlayer);
   }
   
   constructor() {
     super();
-
+    
     this.synth = new Tone.PolySynth().toDestination();
-    console.log(this.innerHTML);
-    this.music = stringToMusic(this.innerHTML);
+    let writtenMusic = stringToMusic(this.innerHTML);
+    if(this.randomroot) {
+      let t: number = _.random(-6,5);
+      this.music = transpose(writtenMusic, t);
+    }
+    else if(this.transpose) {
+      this.music = transpose(writtenMusic, this.transpose);
+    }
+    else {
+      this.music = writtenMusic;
+    }
   }
 
   clickHandler() {
-    playMusic(this.music, this.synth)
+    playMusic(this.music, this.synth, this.tempo);
   }
 
   render() {

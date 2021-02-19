@@ -360,10 +360,10 @@ export class FRComponent extends HTMLElement {
   playButton: Button;
   clearButton: Button;
   lowerContainer: Div;
-  continuousButton: Button;
-  chromaticButton: Button;
-  scaleButton: Button;
-  chordButton: Button;
+  // continuousButton: Button;
+  // chromaticButton: Button;
+  // scaleButton: Button;
+  // chordButton: Button;
   break1: HTMLBRElement;
   break2: HTMLBRElement;
   height: number;
@@ -396,24 +396,22 @@ export class FRComponent extends HTMLElement {
 	appendTo(this.upperContainer, [this.playButton,
 				       this.clearButton]);
 
-	this.lowerContainer = document.createElement("div");
-	this.continuousButton = button("Continuous");
-	this.chromaticButton = button("Chromatic");
-	this.scaleButton = button("Scale");
-	this.chordButton = button("Chord");
-	appendTo(this.lowerContainer, [this.continuousButton,
-				       this.chromaticButton,
-				       this.scaleButton,
-				       this.chordButton]);
+	// this.lowerContainer = document.createElement("div");
+	// this.continuousButton = button("Continuous");
+	// this.chromaticButton = button("Chromatic");
+	// this.scaleButton = button("Scale");
+	// this.chordButton = button("Chord");
+	// appendTo(this.lowerContainer, [this.continuousButton,
+	// 			       this.chromaticButton,
+	// 			       this.scaleButton,
+	// 			       this.chordButton]);
 
 	this.break1 = document.createElement("br");
 	this.break2 = document.createElement("br");
 
 	appendTo(this.container, [this.upperContainer,
 				  this.break1,
-				  this.canvas,
-				  this.break2,
-				  this.lowerContainer]);
+				  this.canvas]);
 
     this.appendChild(this.container);
   }
@@ -433,18 +431,18 @@ export class FRComponent extends HTMLElement {
 	    this.graphics.drawBackground(this.mapper);
 	}).bind(this);
 
-	function resolutionChanger(tuning, caller) {
-	    return function() {
-		caller.mapper = new Mapper(caller.height, tuning);
-		caller.clearCanvas();
+	// function resolutionChanger(tuning, caller) {
+	//     return function() {
+	// 	caller.mapper = new Mapper(caller.height, tuning);
+	// 	caller.clearCanvas();
 		
-	    };
-	}
+	//     };
+	// }
 	
-	this.continuousButton.onclick = resolutionChanger("continuous", this);
-	this.chromaticButton.onclick = resolutionChanger("chromatic", this);
-	this.scaleButton.onclick = resolutionChanger("major scale", this);
-	this.chordButton.onclick = resolutionChanger("major chord", this);
+	//this.continuousButton.onclick = resolutionChanger("continuous", this);
+	//this.chromaticButton.onclick = resolutionChanger("chromatic", this);
+	// this.scaleButton.onclick = resolutionChanger("major scale", this);
+	// this.chordButton.onclick = resolutionChanger("major chord", this);
 
 	let handleClick = (function(event) {
 	    let rect = this.canvas.getBoundingClientRect();
@@ -510,8 +508,6 @@ export default class ResponsiveFRA extends HTMLElement {
 
     let canvasHeight: number = trueHeight / 2;
     let canvasWidth: number = trueWidth < trueHeight ? trueWidth : trueWidth / 2;
-    
-    console.log(trueWidth + ", " + trueHeight);
 
     this.innerHTML =
       `<intuitive-internal-fra width="${canvasWidth}" height="${canvasHeight}" initial-tuning="${initialTuning}">

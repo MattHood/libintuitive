@@ -1,5 +1,5 @@
 import * as Tone from 'tone'
-import { LitElement, html, customElement, property } from 'lit-element'
+import { LitElement, html, customElement, property, queryAssignedNodes } from 'lit-element'
 
 interface AuralObject {
  /**
@@ -39,9 +39,9 @@ function range(start:number , end: number): number[] {
   return arr;
 }
 
-function play(object: AuralObject, synth: Tone.PolySynth): void {
+function play(object: AuralObject, noteDuration: number, synth: Tone.PolySynth): void {
 
-  let unit = Tone.Time("8n").toSeconds();
+  let unit = noteDuration;
   let root = randomRoot();
   let notes = object.degrees.map( (x) =>  Tone.mtof((x + root) as Tone.Unit.MidiNote));
   let indices: number[] = range(0, notes.length);
@@ -123,31 +123,6 @@ function toAuralObject(key: string): AuralObject {
   return ao_map[word_map[key]];
 }
 
-// Front
-let verb = new Tone.Reverb({wet: 0.6}).toDestination();
-let synth = new Tone.PolySynth().connect(verb);
-
-function populateSpan(el): void {
-  let a: HTMLAnchorElement = document.createElement("a");
-  a.href = "javascript:void(0)";
-  let text = el.innerHTML;
-  a.innerHTML = text;
-  let AO = toAuralObject(text);
-  
-  a.onclick = (event) => {
-    play(AO, synth);
-  };
-
-  el.innerHTML = "";
-  el.appendChild(a);
-}
-
-function fillSpans(): void {
-  let spans: NodeListOf<HTMLSpanElement> = document.querySelectorAll("span.aural-object");
-  spans.forEach(populateSpan);
-  
-}
-
 //@customElement('intuitive-aural')
 export default class Aural extends LitElement {
 
@@ -157,6 +132,9 @@ export default class Aural extends LitElement {
 
   @property({type: String})
   _type: string;
+
+  @queryAssignedNodes(undefined, true)
+  children: HTMLCollection;
 
   static register() {
     customElements.define('intuitive-aural', Aural);
@@ -168,18 +146,36 @@ export default class Aural extends LitElement {
    
     let verb = new Tone.Reverb({wet: 0.6}).toDestination();
     this.synth = new Tone.PolySynth().connect(verb);
-    this.AO = toAuralObject(this.getAttribute('type'));    
+    this.AO = toAuralObject(this.getAttribute('type'));
+  }
+
+  firstUpdated(changedProperties) {
+    super.firstUpdated(changedProperties);
+
+    const slot = this.shadowRoot.querySelector('slot');
+    let nodes: Node[] = slot.assignedNodes({flatten: true});
+    
+    
+    function elementSpecificMods(n: Node): void {
+      let name: string = n.nodeName.toLowerCase();
+      if(name == 'a') {
+        let a = n as HTMLAnchorElement;
+        a.href = 'javascript:void(0)';
+      }
+    }
+
+    nodes.forEach(elementSpecificMods);
+
   }
 
   playAural(): void {
-    play(this.AO, this.synth);
+    const duration: number = 1 / this.AO.degrees.length;
+    play(this.AO, duration, this.synth);
   }
 
   render() {
     return html`
-<a href="javascript:void(0)" @click=${this.playAural}>
-  <slot></slot>
-</a>
-`;
+    <slot @click=${this.playAural}></slot>
+    `;
   }
 }
