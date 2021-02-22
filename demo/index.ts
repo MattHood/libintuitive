@@ -11,6 +11,7 @@ import TunePlayer from '../components/note-parser'
 import AllowAudio from '../components/allow-audio'
 import KeyboardGraphic from '../components/keyboard-graphic'
 import BasicFretboardGraphic from '../components/fretboard-graphic'
+import PlayPauseButton from '../components/play-pause-button'
 
 Reveal.initialize({
 	  width: "100%",
@@ -26,6 +27,7 @@ ResponsiveFRA.register();
 TunePlayer.register();
 KeyboardGraphic.register();
 BasicFretboardGraphic.register();
+PlayPauseButton.register();
 
 // Slide 1
 let startup: HTMLElement = document.getElementById("startup");

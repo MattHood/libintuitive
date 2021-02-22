@@ -2,6 +2,7 @@ import * as Tone from 'tone'
 import * as _ from'lodash'
 import "@webcomponents/webcomponentsjs/webcomponents-loader"
 import "@webcomponents/custom-elements/src/native-shim"
+import PlayPauseButton from "./play-pause-button"
 import { customElement, html, LitElement, property } from 'lit-element';
 
 type Maybe<T> = T | null;
@@ -135,14 +136,21 @@ function shorthandPart(note_string: string): Warning<Music> {
   return {data: withTime, warning: warning};
 }
 
-export function playMusic(music: Music, synth: Tone.PolySynth, tempo: number = 120) {
+export function playMusic(music: Music, synth: Tone.PolySynth, tempo: number = 120, onfinish?: () => void) {
   let transformed: Music = music.map( (mu) => {
-    mu.time *= 120 / tempo;
-    return mu; } );
+    return {...mu, time: mu.time * 120 / tempo } 
+  });
+  
+  let lastTime: number;
 
   transformed.forEach( (n) => {
     synth.triggerAttackRelease(n.note, n.duration, n.time + Tone.now());
+    lastTime = n.time + Tone.now();
   });
+
+  if(onfinish) {
+    setInterval(onfinish, lastTime - Tone.now());
+  }
 }
 
 export function transpose(input: Music, semitones: number): Music {
@@ -158,6 +166,21 @@ export function stringToMusic(input: string): Music {
 			"Failed to parse the tokens"); // TODO, use inner text?
 }
 
+type TransposeArg = {
+
+}
+function transposeArgConverter(value: string): TransposeArg {
+  if(_.isInteger(value)) {
+    return parseInt(value);
+  }
+  else if(value == "random") {
+    return "random";
+  }
+  else {
+    return undefined;
+  }
+}
+
 // WebComponent for this thing
 export default class TunePlayer extends LitElement {
   music: Music;
@@ -169,8 +192,8 @@ export default class TunePlayer extends LitElement {
   @property({type: Boolean})
   randomroot: boolean;
 
-  @property({type: Number})
-  transpose: number;
+  @property({converter: transposeArgConverter})
+  transpose: TransposeArg;
 
   @property({type: Number})
   tempo: number = 120;
@@ -183,26 +206,44 @@ export default class TunePlayer extends LitElement {
     super();
     
     this.synth = new Tone.PolySynth().toDestination();
+    
+  }
+
+  firstUpdated(changedProperties) {
+    super.firstUpdated(changedProperties);
+
     let writtenMusic = stringToMusic(this.innerHTML);
-    if(this.randomroot) {
-      let t: number = _.random(-6,5);
+    if(this.transpose) {
+      let t: number;
+      if(this.transpose = "random") {
+        t = _.random(-6,5);
+      }
+      else if(typeof this.transpose == "number") {
+        t = this.transpose as number;
+      }
       this.music = transpose(writtenMusic, t);
-    }
-    else if(this.transpose) {
-      this.music = transpose(writtenMusic, this.transpose);
     }
     else {
       this.music = writtenMusic;
     }
+
+    let button = this.shadowRoot.querySelector("#pp") as PlayPauseButton;
+    button.onplay = this.clickHandler.bind(this);
+
   }
 
   clickHandler() {
-    playMusic(this.music, this.synth, this.tempo);
+    const onfinish = () => {
+      let button = this.shadowRoot.querySelector("#pp") as PlayPauseButton;
+      button.playing = false;
+    }
+    
+    playMusic(this.music, this.synth, this.tempo, onfinish);
   }
 
   render() {
     return html`
-<button @click=${this.clickHandler}>${this.title}</button>
+<intuitive-play-pause-button id="pp" title="${this.title}"></intuitive-play-pause-button>
 `
   }
 }
