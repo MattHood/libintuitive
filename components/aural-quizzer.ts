@@ -1,4 +1,4 @@
-import { customElement, html, LitElement, queryAssignedNodes, property, query } from 'lit-element';
+import { customElement, html, LitElement, queryAssignedNodes, property, query, internalProperty } from 'lit-element';
 import "@webcomponents/webcomponentsjs/webcomponents-loader"
 import "@webcomponents/custom-elements/src/native-shim"
 import * as _ from 'lodash'
@@ -76,6 +76,13 @@ export class RegeneratingQuizzer extends LitElement implements Quizzer {
     @property({type: String})
     currentQuestion: string;
 
+    @internalProperty()
+    attempts: number = 0;
+
+    @internalProperty()
+    correctGuesses: number = 0;
+
+
     constructor() {
         super();
     }
@@ -107,9 +114,19 @@ export class RegeneratingQuizzer extends LitElement implements Quizzer {
     }
 
     render() {
-        return html`
-        <intuitive-aural type="${this.currentQuestion}"><button>Play</button></intuitive-aural>
-        <slot></slot>
+        const play = 
+            html`<intuitive-aural type="${this.currentQuestion}">
+                    <button>Play</button>
+                 </intuitive-aural>`;
+        const scorePercentage = this.attempts == 0 ? 0 : Math.round((this.correctGuesses / this.attempts) * 100);
+        const score = 
+            html`${this.correctGuesses} / ${this.attempts} - 
+                 ${scorePercentage}%`;
+
+        return html`    
+        ${play}<br />
+        <slot></slot> <br />
+        ${score}
         `
     }
 
@@ -119,7 +136,9 @@ export class RegeneratingQuizzer extends LitElement implements Quizzer {
 
     checkVeracity(qo: QuizOption): QuizOptionVeracity {
         const veracity = qo.auralname == this.currentQuestion ? "correct" : "incorrect";
+        this.attempts += 1;
         if(veracity == "correct") { 
+            this.correctGuesses += 1;
             setTimeout(this.newQuestion.bind(this), WAIT_BETWEEN_QUESTIONS_MS); 
         };
         return veracity;
