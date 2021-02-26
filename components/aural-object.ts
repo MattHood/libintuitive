@@ -102,6 +102,8 @@ let word_map: Record<string, AuralName> = {
   "minor triad": "Triad.Minor",
   "minor chord": "Triad.Minor",
   "unison": "Interval.Unison",
+  "semitone": "Interval.Minor2nd",
+  "tone": "Interval.Major2nd",
   "minor 2nd": "Interval.Minor2nd",
   "major 2nd": "Interval.Major2nd",
   "minor 3rd": "Interval.Minor3rd",
@@ -120,7 +122,7 @@ let word_map: Record<string, AuralName> = {
 
 function toAuralObject(key: string): AuralObject {
   // TODO undefined interval check. Whip out a Maybe?
-  return ao_map[word_map[key]];
+  return ao_map[word_map[key.toLowerCase()]];
 }
 
 //@customElement('intuitive-aural')
@@ -131,7 +133,7 @@ export default class Aural extends LitElement {
   synth: Tone.PolySynth;
 
   @property({type: String})
-  _type: string;
+  type: string;
 
   @queryAssignedNodes(undefined, true)
   children: HTMLCollection;
@@ -146,7 +148,6 @@ export default class Aural extends LitElement {
    
     let verb = new Tone.Reverb({wet: 0.6}).toDestination();
     this.synth = new Tone.PolySynth().connect(verb);
-    this.AO = toAuralObject(this.getAttribute('type'));
   }
 
   firstUpdated(changedProperties) {
@@ -166,6 +167,10 @@ export default class Aural extends LitElement {
 
     nodes.forEach(elementSpecificMods);
 
+  }
+
+  updated(changedProperties) {
+    this.AO = toAuralObject(this.type);
   }
 
   playAural(): void {
