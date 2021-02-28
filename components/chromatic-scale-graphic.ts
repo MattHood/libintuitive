@@ -2,10 +2,11 @@ import "@webcomponents/webcomponentsjs/webcomponents-loader"
 import "@webcomponents/custom-elements/src/native-shim"
 import { LitElement, html, customElement, property, svg, SVGTemplateResult } from 'lit-element'
 import * as _ from 'lodash'
+import IntuitiveElement from './intuitive-element'
 
 type SVG = SVGTemplateResult;
 
-export default class ChromaticScaleGraphic extends LitElement {
+export default class ChromaticScaleGraphic extends IntuitiveElement {
     static register() {
         customElements.define('intuitive-chromatic-scale-graphic', ChromaticScaleGraphic);
     }
@@ -74,6 +75,5 @@ export default class ChromaticScaleGraphic extends LitElement {
             ${dots}
         </svg>
         `
-
     }
 }

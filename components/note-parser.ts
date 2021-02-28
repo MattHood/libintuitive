@@ -4,6 +4,8 @@ import "@webcomponents/webcomponentsjs/webcomponents-loader"
 import "@webcomponents/custom-elements/src/native-shim"
 import PlayPauseButton from "./play-pause-button"
 import { customElement, html, LitElement, property } from 'lit-element';
+import IntuitiveElement from './intuitive-element'
+
 
 type Maybe<T> = T | null;
 type Optional<T> = T | undefined;
@@ -182,7 +184,7 @@ function transposeArgConverter(value: string): TransposeArg {
 }
 
 // WebComponent for this thing
-export default class TunePlayer extends LitElement {
+export default class TunePlayer extends IntuitiveElement {
   music: Music;
   synth: Tone.PolySynth;
 

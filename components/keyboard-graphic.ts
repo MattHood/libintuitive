@@ -2,10 +2,11 @@ import "@webcomponents/webcomponentsjs/webcomponents-loader"
 import "@webcomponents/custom-elements/src/native-shim"
 import { LitElement, html, customElement, property, svg, SVGTemplateResult } from 'lit-element'
 import * as _ from 'lodash'
+import IntuitiveElement from './intuitive-element'
 
 
 
-export default class KeyboardGraphic extends LitElement {
+export default class KeyboardGraphic extends IntuitiveElement {
     
     @property({type: Number})
     octaves: number = 1;

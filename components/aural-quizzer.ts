@@ -1,7 +1,9 @@
-import { customElement, html, LitElement, queryAssignedNodes, property, query, internalProperty } from 'lit-element';
+import { customElement, html, css, LitElement, queryAssignedNodes, property, query, internalProperty } from 'lit-element';
 import "@webcomponents/webcomponentsjs/webcomponents-loader"
 import "@webcomponents/custom-elements/src/native-shim"
 import * as _ from 'lodash'
+import IntuitiveElement from './intuitive-element'
+
 
 const WAIT_BETWEEN_QUESTIONS_MS = 1000; 
 
@@ -18,7 +20,7 @@ interface Quizzer {
 }
 
 
-export class QuizOption extends LitElement {
+export class QuizOption extends IntuitiveElement {
     static register() {
         customElements.define('intuitive-quiz-option', QuizOption);
     }
@@ -56,15 +58,21 @@ export class QuizOption extends LitElement {
     
 
     render() {
+        const selectStyle = this.selection == "unselected" ? "is-light" : "";
+        const colorStyle = this.veracity == "uncorrected" ? "is-info" 
+                            : this.veracity == "correct" ? "is-primary" : "is-danger";
         return html`
-            <button @click=${this.clickHandler}>${this.auralname} - ${this.selection.slice(0, 3)} - ${this.veracity.slice(0, 3)}</button>
+            <button class="button ${selectStyle} ${colorStyle}" 
+                    @click=${this.clickHandler}>
+                ${this.auralname}
+            </button>
         `
     }
 
 }
 
 // TODO Add Score
-export class RegeneratingQuizzer extends LitElement implements Quizzer {
+export class RegeneratingQuizzer extends IntuitiveElement implements Quizzer {
     static register() {
         customElements.define('intuitive-regenerating-aural-quiz', RegeneratingQuizzer);
     }
@@ -116,7 +124,7 @@ export class RegeneratingQuizzer extends LitElement implements Quizzer {
     render() {
         const play = 
             html`<intuitive-aural type="${this.currentQuestion}">
-                    <button>Play</button>
+                    <button class="button is-info">Play</button>
                  </intuitive-aural>`;
         const scorePercentage = this.attempts == 0 ? 0 : Math.round((this.correctGuesses / this.attempts) * 100);
         const score = 
@@ -124,7 +132,7 @@ export class RegeneratingQuizzer extends LitElement implements Quizzer {
                  ${scorePercentage}%`;
 
         return html`    
-        ${play}<br />
+        ${play}
         <slot></slot> <br />
         ${score}
         `

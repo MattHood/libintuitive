@@ -1,5 +1,6 @@
 import * as Tone from 'tone'
 import { LitElement, html, customElement, property, queryAssignedNodes } from 'lit-element'
+import IntuitiveElement from './intuitive-element'
 
 interface AuralObject {
  /**
@@ -126,7 +127,7 @@ function toAuralObject(key: string): AuralObject {
 }
 
 //@customElement('intuitive-aural')
-export default class Aural extends LitElement {
+export default class Aural extends IntuitiveElement {
 
   text: string;
   AO: AuralObject;
