@@ -1,4 +1,6 @@
 import * as Tone from 'tone'
+import semibreve from 'url:../../../static/semibreve.svg'
+
 
 function equalTemperament(base, steps) {
     return base * Math.pow(2, steps / 12);
@@ -203,7 +205,7 @@ class Graphics {
       this.height = canvas.height;
       this.width = canvas.width;
       this.notehead = new Image();
-      this.notehead.src = "semibreve.svg";
+      this.notehead.src = semibreve;
     }
 
     toHSLString(x) {
