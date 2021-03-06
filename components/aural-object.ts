@@ -40,7 +40,7 @@ function range(start:number , end: number): number[] {
   return arr;
 }
 
-function play(object: AuralObject, noteDuration: number, synth: Tone.PolySynth): void {
+export function play(object: AuralObject, noteDuration: number, synth: Tone.PolySynth): void {
 
   let unit = noteDuration;
   let root = randomRoot();
@@ -59,7 +59,7 @@ function play(object: AuralObject, noteDuration: number, synth: Tone.PolySynth):
   
 }
 
-function ao(_degrees: number[]): AuralObject {
+export function ao(_degrees: number[]): AuralObject {
   return {degrees: _degrees};
 }
 
