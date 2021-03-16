@@ -84,4 +84,6 @@ Aural Interval objects could be placed inline with text, featuring
 *** TODO ESLint and Prettier
 *** TODO Ignore typescript import errors
 ** TODO Rewrite playback module
+*** DONE Support length dependent duration
+** TODO Test commentary via <aside> / showNotes
 

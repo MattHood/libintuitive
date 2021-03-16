@@ -7,3 +7,4 @@
 /dist/
 /demo/index.ts~
 tsconfig.json
+.parcel-cache/

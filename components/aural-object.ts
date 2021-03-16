@@ -1,6 +1,7 @@
 import * as Tone from 'tone'
 import { LitElement, html, customElement, property, queryAssignedNodes } from 'lit-element'
 import IntuitiveElement from './intuitive-element'
+import * as AP from '../utilities/aural-playback';
 
 interface AuralObject {
  /**
@@ -128,13 +129,17 @@ function toAuralObject(key: string): AuralObject {
 
 //@customElement('intuitive-aural')
 export default class Aural extends IntuitiveElement {
-
+  player: AP.AuralPlayback;
   text: string;
-  AO: AuralObject;
-  synth: Tone.PolySynth;
 
   @property({type: String})
   type: string;
+
+  @property({type: Boolean})
+  arpeggio: boolean = true;
+
+  @property({type: Boolean})
+  chord: boolean = true;
 
   @queryAssignedNodes(undefined, true)
   children: HTMLCollection;
@@ -146,9 +151,7 @@ export default class Aural extends IntuitiveElement {
   
   constructor() {
     super();
-   
-    let verb = new Tone.Reverb({wet: 0.6}).toDestination();
-    this.synth = new Tone.PolySynth().connect(verb);
+    this.player = new AP.AuralPlayback("perfect 5th", {chord: false});
   }
 
   firstUpdated(changedProperties) {
@@ -171,17 +174,31 @@ export default class Aural extends IntuitiveElement {
   }
 
   updated(changedProperties) {
-    this.AO = toAuralObject(this.type);
+    super.updated(changedProperties);
+
+    console.log("tt: " + this.type);
+    let type: string = AP.isValidShorthand(this.type) ? this.type as AP.Shorthand : "silent";
+    console.log("t: " + type);
+    const playerOptions: AP.AuralOptions = 
+      {
+        transpose: "random",
+        noteDuration: "auto",
+        arpeggio: this.arpeggio,
+        chord: this.chord
+      }
+    this.player = new AP.AuralPlayback(type, playerOptions);
+    console.log(this.player); 
   }
 
   playAural(): void {
-    const duration: number = 1 / this.AO.degrees.length;
-    play(this.AO, duration, this.synth);
+    this.player.play();
   }
+
+  
 
   render() {
     return html`
-    <slot @click=${this.playAural}></slot>
+    <slot @click=${this.playAural.bind(this)}></slot>
     `;
   }
 }

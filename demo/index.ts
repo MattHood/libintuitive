@@ -13,12 +13,15 @@ import KeyboardGraphic from '../components/keyboard-graphic'
 import BasicFretboardGraphic from '../components/fretboard-graphic'
 import PlayPauseButton from '../components/play-pause-button'
 
+import {AuralPlayback, AuralOptions, AuralPlaybackCallback} from '../utilities/aural-playback'
+
 Reveal.initialize({
 	  width: "100%",
 	  height: "100%",
 	  margin: 0,
 	  minScale: 1,
-	  maxScale: 1
+	  maxScale: 1,
+	  showNotes: true
 });
 
 AllowAudio.register();
@@ -29,9 +32,9 @@ KeyboardGraphic.register();
 BasicFretboardGraphic.register();
 PlayPauseButton.register();
 
-// Slide 1
-let startup: HTMLElement = document.getElementById("startup");
-startup.onclick = () => {
-  Tone.start();
-  startup.remove();
+let pb: HTMLElement = document.getElementById("pbtest");
+let opts: AuralOptions = {root: "C5", transpose: "random", arpeggio: true, noteDuration: "auto", onFinish: () => { console.log("Done") }};
+let player: AuralPlayback = new AuralPlayback("minor 3rd", opts);
+pb.onclick = () => { 
+	let p: AuralPlaybackCallback = player.play();
 }
