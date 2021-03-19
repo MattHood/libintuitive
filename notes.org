@@ -74,7 +74,7 @@ Aural Interval objects could be placed inline with text, featuring
 *** TODO Handle orientation changes
 ** TODO Documentation.org for libintuitive
 ** TODO Readme.org for libintuitive
-** TODO allow-audio: fix remove() causing null issues on render
+** DONE allow-audio: fix remove() causing null issues on render
 ** TODO intuitive-keyboard-graphic: more permissive input to 'select' attribute
 ** TODO frequency-resolution-applet: rewrite with svg? Highlight noteheads during playback?
 ** DONE Create generic play/pause button with optional text
@@ -83,7 +83,7 @@ Aural Interval objects could be placed inline with text, featuring
 *** TODO Switch back to monorepo?
 *** TODO ESLint and Prettier
 *** TODO Ignore typescript import errors
-** TODO Rewrite playback module
+** DONE Rewrite playback module
 *** DONE Support length dependent duration
-** TODO Test commentary via <aside> / showNotes
+** DONE Test commentary via <aside> / showNotes (not so good)
 

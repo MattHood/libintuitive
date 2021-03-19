@@ -30,11 +30,17 @@ ResponsiveFRA.register();
 TunePlayer.register();
 KeyboardGraphic.register();
 BasicFretboardGraphic.register();
-PlayPauseButton.register();
+PlayPauseButton.register(); 
 
 let pb: HTMLElement = document.getElementById("pbtest");
+let pbs: HTMLElement = document.getElementById("pbtestS");
 let opts: AuralOptions = {root: "C5", transpose: "random", arpeggio: true, noteDuration: "auto", onFinish: () => { console.log("Done") }};
 let player: AuralPlayback = new AuralPlayback("minor 3rd", opts);
+let p: AuralPlaybackCallback
 pb.onclick = () => { 
-	let p: AuralPlaybackCallback = player.play();
+	p = player.play();
+}
+
+pbs.onclick = () => {
+	p.stopPlayback();
 }

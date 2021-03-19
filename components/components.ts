@@ -1,3 +1,4 @@
+import AllowAudio from './allow-audio'
 import ResponsiveFRA from './frequency-resolution-applet'
 import Aural from './aural-object';
 import TunePlayer from './note-parser'
@@ -15,6 +16,7 @@ export default function RegisterComponents(): void {
     sheet.replaceSync(_bulmaStyle as string);
     (window as any).BulmaStyle = sheet;
 
+    AllowAudio.register();
     ResponsiveFRA.register();
     Aural.register();
     KeyboardGraphic.register();

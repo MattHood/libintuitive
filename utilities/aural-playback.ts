@@ -1,6 +1,7 @@
 import * as Tone from 'tone'
 import * as _ from 'lodash'
 import { fill } from 'lodash';
+import { isArray } from 'tone';
 
 const AUTO_NOTE_DURATION_TOTAL_SEC = 1;
 
@@ -64,6 +65,7 @@ export interface AuralPlaybackCallback {
 }
 
 type AuralObject = number[];
+
 
 let ao_map = {
     "Silent": [],
@@ -174,24 +176,21 @@ let ao_map = {
         if(options.chord) {
             score.push(notes);
         }
-        const now = Tone.now();
-        const times: number[] = _.range(score.length).map(n => now + n * noteDuration);
-        const length: number = score.length * noteDuration;
-        const toneFriendly: MusicEvent[] = _.zipWith(times, score, 
-            (t, s) => { return {time: t, note: s, duration: noteDuration} });
-        console.log("input")
-        console.log(toneFriendly);
-        // The first in the array isn't getting played
-        console.log("playback")
-        const player: (time: number, e: MusicEvent) => void = (time: number, e: MusicEvent) => {
-            console.log("time: " + time);
-            console.log(e);
-            synth.triggerAttackRelease(e.note, e.duration, time);
-        }
-        let event = new Tone.Part(player, [{}, ...toneFriendly);
 
-        event.start(0);
-        Tone.Transport.start(0);
+        const times: number[] = _.range(score.length).map(n => n * noteDuration);
+
+        const events: MusicEvent[] = _.zipWith(times, score, 
+            (t, s) => { return {time: t, note: s, duration: noteDuration} });
+ 
+        const player: (e: MusicEvent) => void = (e: MusicEvent) => {
+            const velocity = isArray(e.note) ? 0.65 : 1; // Avoid clipping chords
+            const timeOffset = isArray(e.note) ? Tone.Time(e.duration).toSeconds() / 2 : 0; // Delay chord onset
+            synth.triggerAttackRelease(e.note, e.duration, Tone.now() + timeOffset, velocity);
+        }
+
+        let noteTimers: number[] = events.map( 
+            (e: MusicEvent) =>  window.setTimeout(() => { player(e) }, e.time * 1000));
+        
         let isPlaying = true;
         const onFinish: () => void = () => {
             isPlaying = false;
@@ -199,14 +198,15 @@ let ao_map = {
                 options.onFinish();
             }
         };
-        let timer = setTimeout(onFinish, length * 1000);
 
+        const length: number = score.length * noteDuration;
+        let finalTimer = window.setTimeout(onFinish, length * 1000);
+        
         const hasFinished = (): boolean => !isPlaying;
         const stopPlayback = () => {
             if(isPlaying) {
-                event.cancel();
-                Tone.Transport.cancel();
-                clearTimeout(timer);
+                noteTimers.forEach(clearTimeout);
+                clearTimeout(finalTimer);
                 isPlaying = false;
                 if(options.onFinish != undefined) {
                     options.onFinish();
@@ -214,9 +214,7 @@ let ao_map = {
             }
         };
 
-        const output: AuralPlaybackCallback = {length: length, hasFinished: hasFinished, stopPlayback: stopPlayback};
-        
-        return output;
+        return {length: length, hasFinished: hasFinished, stopPlayback: stopPlayback};
       }
 
       play(): AuralPlaybackCallback | undefined {

@@ -176,9 +176,7 @@ export default class Aural extends IntuitiveElement {
   updated(changedProperties) {
     super.updated(changedProperties);
 
-    console.log("tt: " + this.type);
     let type: string = AP.isValidShorthand(this.type) ? this.type as AP.Shorthand : "silent";
-    console.log("t: " + type);
     const playerOptions: AP.AuralOptions = 
       {
         transpose: "random",
@@ -187,7 +185,6 @@ export default class Aural extends IntuitiveElement {
         chord: this.chord
       }
     this.player = new AP.AuralPlayback(type, playerOptions);
-    console.log(this.player); 
   }
 
   playAural(): void {
