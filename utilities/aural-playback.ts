@@ -147,9 +147,14 @@ let ao_map = {
         if(synth == undefined) {
             synth = defaultSynth();
         }
+        
 
         // Takes any undefined options and sets them to defaults
         const options = fillInPlaybackOptions(_options);
+
+        if(input == "silent") {
+            return { length: 0, hasFinished: () => true, stopPlayback: options.onFinish };
+        }
 
         let steps: AuralObject = inputToAuralObject(input);
         const noteDuration: number = options.noteDuration == "auto" ?

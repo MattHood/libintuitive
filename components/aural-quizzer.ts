@@ -7,6 +7,8 @@ import IntuitiveElement from './intuitive-element'
 
 const WAIT_BETWEEN_QUESTIONS_MS = 1000; 
 
+// Creates a function y = f(x) that ensures that y is in the list [first ...rest]. 
+// If x is in the list, y = x, otherwise y = first.
 function guardToFirst<T>(first: T, ...rest: T[]): (s: T) => T {
     return (s: T) => rest.includes(s) ? s : first;
 }
@@ -90,6 +92,9 @@ export class RegeneratingQuizzer extends IntuitiveElement implements Quizzer {
     @internalProperty()
     correctGuesses: number = 0;
 
+    @internalProperty()
+    buttonEnabled: boolean = true;
+
 
     constructor() {
         super();
@@ -118,13 +123,15 @@ export class RegeneratingQuizzer extends IntuitiveElement implements Quizzer {
     }
 
     newQuestion() {
+        this.buttonEnabled = true;
         this.currentQuestion = _.sample(this.auralIDs);
     }
 
     render() {
+        const type = this.currentQuestion ? this.currentQuestion.toLowerCase() : "silent";
         const play = 
-            html`<intuitive-aural type="${this.currentQuestion}">
-                    <button class="button is-info">Play</button>
+            html`<intuitive-aural type="${type}">
+                    <button class="button is-info" ?disabled=${!this.buttonEnabled}>Play</button>
                  </intuitive-aural>`;
         const scorePercentage = this.attempts == 0 ? 0 : Math.round((this.correctGuesses / this.attempts) * 100);
         const score = 
@@ -147,6 +154,7 @@ export class RegeneratingQuizzer extends IntuitiveElement implements Quizzer {
         this.attempts += 1;
         if(veracity == "correct") { 
             this.correctGuesses += 1;
+            this.buttonEnabled = false;
             setTimeout(this.newQuestion.bind(this), WAIT_BETWEEN_QUESTIONS_MS); 
         };
         return veracity;

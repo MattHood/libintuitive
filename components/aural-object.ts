@@ -175,7 +175,7 @@ export default class Aural extends IntuitiveElement {
 
   updated(changedProperties) {
     super.updated(changedProperties);
-
+    if(!AP.isValidShorthand(this.type)) console.warn(`Invalid shorthand: ${this.type}`);
     let type: string = AP.isValidShorthand(this.type) ? this.type as AP.Shorthand : "silent";
     const playerOptions: AP.AuralOptions = 
       {
