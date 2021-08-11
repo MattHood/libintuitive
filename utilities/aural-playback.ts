@@ -71,6 +71,7 @@ let ao_map = {
     "Silent": [],
     "Triad.Major": [0, 4, 7],
     "Triad.Minor": [0, 3, 7],
+    "Triad.Diminished": [0, 3, 6],
     "Interval.Unison": [0, 0],
     "Interval.Minor2nd": [0, 1],
     "Interval.Major2nd": [0, 2],
@@ -83,17 +84,21 @@ let ao_map = {
     "Interval.Major6th": [0, 9],
     "Interval.Minor7th": [0, 10],
     "Interval.Major7th": [0, 11],
-    "Interval.Octave": [0, 12]
+    "Interval.Octave": [0, 12],
+    "Scale.Major": [0,2,4,5,7,9,11,12],
+    "Scale.NaturalMinor": [0,2,3,5,7,8,10,12]
   }
-
+  type AuralID = keyof typeof ao_map;
 
   
-  let word_map = {
+  let word_map: {[key: string]: AuralID} = {
     "silent": "Silent",
     "major triad": "Triad.Major",
     "major chord": "Triad.Major",
     "minor triad": "Triad.Minor",
     "minor chord": "Triad.Minor",
+    "diminished triad": "Triad.Diminished",
+    "diminshed chord": "Triad.Diminished",
     "unison": "Interval.Unison",
     "semitone": "Interval.Minor2nd",
     "tone": "Interval.Major2nd",
@@ -108,11 +113,14 @@ let ao_map = {
     "major 6th": "Interval.Major6th",
     "minor 7th": "Interval.Minor7th",
     "major 7th": "Interval.Major7th",
-    "octave": "Interval.Octave"
+    "octave": "Interval.Octave",
+    "major scale": "Scale.Major",
+    "minor scale": "Scale.NaturalMinor",
+    "natural minor scale": "Scale.NaturalMinor"
   };
 
-  type AuralID = keyof typeof ao_map;
-  export type Shorthand = keyof typeof word_map;
+  
+  export type Shorthand = string;
 
   export function isValidShorthand(input: string): boolean {
     return Object.keys(word_map).includes(input);

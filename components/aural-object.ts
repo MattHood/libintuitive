@@ -64,68 +64,79 @@ export function ao(_degrees: number[]): AuralObject {
   return {degrees: _degrees};
 }
 
-type AuralName = "Triad.Major" |
-  "Triad.Minor" |
-  "Interval.Unison" |
-  "Interval.Minor2nd" |
-  "Interval.Major2nd" |
-  "Interval.Minor3rd" |
-  "Interval.Major3rd" |
-  "Interval.Perfect4th" |
-  "Interval.Diminished5th" |
-  "Interval.Perfect5th" | 
-  "Interval.Minor6th" | 
-  "Interval.Major6th" | 
-  "Interval.Minor7th" | 
-  "Interval.Major7th" | 
-  "Interval.Octave";
+// type AuralName = "Triad.Major" |
+//   "Triad.Minor" |
+//   "Triad.Diminshed" |
+//   "Interval.Unison" |
+//   "Interval.Minor2nd" |
+//   "Interval.Major2nd" |
+//   "Interval.Minor3rd" |
+//   "Interval.Major3rd" |
+//   "Interval.Perfect4th" |
+//   "Interval.Diminished5th" |
+//   "Interval.Perfect5th" | 
+//   "Interval.Minor6th" | 
+//   "Interval.Major6th" | 
+//   "Interval.Minor7th" | 
+//   "Interval.Major7th" | 
+//   "Interval.Octave" |
+//   "Scale.Major" |
+//   "Scale.NaturalMinor";
 
-let ao_map: Record<string, AuralObject> = {
-  "Triad.Major": ao([0, 4, 7]),
-  "Triad.Minor": ao([0, 3, 7]),
-  "Interval.Unison": ao([0, 0]),
-  "Interval.Minor2nd": ao([0, 1]),
-  "Interval.Major2nd": ao([0, 2]),
-  "Interval.Minor3rd": ao([0, 3]),
-  "Interval.Major3rd": ao([0, 4]),
-  "Interval.Perfect4th": ao([0, 5]),
-  "Interval.Diminished5th": ao([0, 6]),
-  "Interval.Perfect5th": ao([0, 7]),
-  "Interval.Minor6th": ao([0, 8]),
-  "Interval.Major6th": ao([0, 9]),
-  "Interval.Minor7th": ao([0, 10]),
-  "Interval.Major7th": ao([0, 11]),
-  "Interval.Octave": ao([0, 12])
-}
+// let ao_map: Record<AuralName, AuralObject> = {
+//   "Triad.Major": ao([0, 4, 7]),
+//   "Triad.Minor": ao([0, 3, 7]),
+//   "Triad.Diminshed": ao([0, 3, 6]),
+//   "Interval.Unison": ao([0, 0]),
+//   "Interval.Minor2nd": ao([0, 1]),
+//   "Interval.Major2nd": ao([0, 2]),
+//   "Interval.Minor3rd": ao([0, 3]),
+//   "Interval.Major3rd": ao([0, 4]),
+//   "Interval.Perfect4th": ao([0, 5]),
+//   "Interval.Diminished5th": ao([0, 6]),
+//   "Interval.Perfect5th": ao([0, 7]),
+//   "Interval.Minor6th": ao([0, 8]),
+//   "Interval.Major6th": ao([0, 9]),
+//   "Interval.Minor7th": ao([0, 10]),
+//   "Interval.Major7th": ao([0, 11]),
+//   "Interval.Octave": ao([0, 12]),
+//   "Scale.Major": ao([0,2,4,5,7,9,11,12]),
+//   "Scale.NaturalMinor": ao([0,2,3,5,7,8,10,12])
+// }
 
-let word_map: Record<string, AuralName> = {
-  "major triad": "Triad.Major",
-  "major chord": "Triad.Major",
-  "minor triad": "Triad.Minor",
-  "minor chord": "Triad.Minor",
-  "unison": "Interval.Unison",
-  "semitone": "Interval.Minor2nd",
-  "tone": "Interval.Major2nd",
-  "minor 2nd": "Interval.Minor2nd",
-  "major 2nd": "Interval.Major2nd",
-  "minor 3rd": "Interval.Minor3rd",
-  "major 3rd": "Interval.Major3rd",
-  "perfect 4th": "Interval.Perfect4th",
-  "tritone": "Interval.Diminished5th",
-  "perfect 5th": "Interval.Perfect5th",
-  "minor 6th": "Interval.Minor6th",
-  "major 6th": "Interval.Major6th",
-  "minor 7th": "Interval.Minor7th",
-  "major 7th": "Interval.Major7th",
-  "octave": "Interval.Octave"
-};
+// let word_map: Record<string, AuralName> = {
+//   "major triad": "Triad.Major",
+//   "major chord": "Triad.Major",
+//   "minor triad": "Triad.Minor",
+//   "minor chord": "Triad.Minor",
+//   "diminished triad": "Triad.Diminshed",
+//   "diminshed chord": "Triad.Diminshed",
+//   "unison": "Interval.Unison",
+//   "semitone": "Interval.Minor2nd",
+//   "tone": "Interval.Major2nd",
+//   "minor 2nd": "Interval.Minor2nd",
+//   "major 2nd": "Interval.Major2nd",
+//   "minor 3rd": "Interval.Minor3rd",
+//   "major 3rd": "Interval.Major3rd",
+//   "perfect 4th": "Interval.Perfect4th",
+//   "tritone": "Interval.Diminished5th",
+//   "perfect 5th": "Interval.Perfect5th",
+//   "minor 6th": "Interval.Minor6th",
+//   "major 6th": "Interval.Major6th",
+//   "minor 7th": "Interval.Minor7th",
+//   "major 7th": "Interval.Major7th",
+//   "octave": "Interval.Octave",
+//   "major scale": "Scale.Major",
+//   "minor scale": "Scale.NaturalMinor",
+//   "natural minor scale": "Scale.NaturalMinor"
+// };
 
+const isNumeric: (str: string) => boolean = (str) => !isNaN(parseFloat(str)) && isFinite(Number(str));
 
-
-function toAuralObject(key: string): AuralObject {
-  // TODO undefined interval check. Whip out a Maybe?
-  return ao_map[word_map[key.toLowerCase()]];
-}
+// function toAuralObject(key: string): AuralObject {
+//   // TODO undefined interval check. Whip out a Maybe?
+//   return ao_map[word_map[key.toLowerCase()]];
+// }
 
 //@customElement('intuitive-aural')
 export default class Aural extends IntuitiveElement {
@@ -135,11 +146,11 @@ export default class Aural extends IntuitiveElement {
   @property({type: String})
   type: string;
 
-  @property({type: Boolean})
-  arpeggio: boolean = true;
+  @property({type: String})
+  playback: string = "arpeggio chord";
 
-  @property({type: Boolean})
-  chord: boolean = true;
+  @property({type: String})
+  duration: string = "auto";
 
   @queryAssignedNodes(undefined, true)
   children: HTMLCollection;
@@ -173,16 +184,26 @@ export default class Aural extends IntuitiveElement {
 
   }
 
+  
   updated(changedProperties) {
     super.updated(changedProperties);
     if(!AP.isValidShorthand(this.type)) console.warn(`Invalid shorthand: ${this.type}`);
     let type: string = AP.isValidShorthand(this.type) ? this.type as AP.Shorthand : "silent";
+    let duration: number | "auto"; 
+    if(isNumeric(this.duration)) {
+      duration = parseFloat(this.duration);
+    } else {
+      if(this.duration != "auto") {
+        console.warn("Unrecognised duration")
+      }
+      duration = "auto";
+    }
     const playerOptions: AP.AuralOptions = 
       {
         transpose: "random",
-        noteDuration: "auto",
-        arpeggio: this.arpeggio,
-        chord: this.chord
+        noteDuration: duration,
+        arpeggio: this.playback.includes("arpeggio"),
+        chord: this.playback.includes("chord")
       }
     this.player = new AP.AuralPlayback(type, playerOptions);
   }
