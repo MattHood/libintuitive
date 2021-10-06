@@ -378,6 +378,7 @@ export class FRComponent extends HTMLElement {
   buildUI(width: number, height: number): void {
     function button(text: string): Button {
       let t = document.createElement("button");
+      t.classList.add("button");
       t.innerHTML = text;
       return t;
     }
