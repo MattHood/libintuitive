@@ -90,7 +90,7 @@ class Scale extends Consecutive {
         if(steps[steps.length - 1] < 12) {
             steps = [...steps, 12];
         }
-        AuOb.play(AuOb.ao(steps), 0.8,this.synth);
+        AuOb.play(AuOb.ao(steps), 0.8,this.synth, true);
     }
 }
 

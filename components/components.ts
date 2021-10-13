@@ -8,6 +8,8 @@ import ChromaticScaleGraphic from './chromatic-scale-graphic'
 import PlayPauseButton from './play-pause-button'
 import { QuizOption, RegeneratingQuizzer } from './aural-quizzer'
 import ConsecutiveIntervals from './consecutive-intervals'
+import { MusicalAlphabet } from './musical-alphabet';
+import { ChromaticAnimation } from './chromatic-animation';
 //import KatexMath from './katex-math'
 import Encircle from './encircle'
 import _bulmaStyle from 'bundle-text:bulma/css/bulma.css'
@@ -36,4 +38,6 @@ export default function RegisterComponents(): void {
     ConsecutiveIntervals.register();
     //KatexMath.register();
     Encircle.register();
+    MusicalAlphabet.register();
+    ChromaticAnimation.register();
 }

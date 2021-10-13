@@ -41,7 +41,7 @@ function range(start:number , end: number): number[] {
   return arr;
 }
 
-export function play(object: AuralObject, noteDuration: number, synth: Tone.PolySynth): void {
+export function play(object: AuralObject, noteDuration: number, synth: Tone.PolySynth, noChord: boolean = false): void {
 
   let unit = noteDuration;
   let root = randomRoot();
@@ -49,14 +49,16 @@ export function play(object: AuralObject, noteDuration: number, synth: Tone.Poly
   let indices: number[] = range(0, notes.length);
   let now = Tone.now();
   let arpeggio_times = indices.map( (i) => (i * unit + now));
-  let chord_time: number = notes.length * unit + now;
+  
 
   arpeggio_times.forEach((time, index) => {
     synth.triggerAttackRelease(notes[index], "8n", time);
   });
-
-  let velocity: number = 1 / Math.sqrt(notes.length);
-  synth.triggerAttackRelease(notes, "4n", chord_time, velocity);
+  if(!noChord) {
+    let chord_time: number = notes.length * unit + now;
+    let velocity: number = 1 / Math.sqrt(notes.length);
+    synth.triggerAttackRelease(notes, "4n", chord_time, velocity);
+  }
   
 }
 
